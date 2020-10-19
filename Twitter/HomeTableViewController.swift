@@ -15,11 +15,15 @@ class HomeTableViewController: UITableViewController {
     let myRefreshControl = UIRefreshControl()
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadTweet()
         myRefreshControl.addTarget(self, action: #selector(loadTweet), for: .valueChanged)
         tableView.refreshControl = myRefreshControl
+        self.tableView.rowHeight = 150
+        self.tableView.estimatedRowHeight = 150
     }
-
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.loadTweet()
+    }
     @objc func loadTweet(){
         let myUrl = "https://api.twitter.com/1.1/statuses/home_timeline.json"
         let myParams = ["count":10]
@@ -39,11 +43,13 @@ class HomeTableViewController: UITableViewController {
     
     @IBAction func onLogout(_ sender: Any) {
         print("asdas")
-        TwitterAPICaller.client?.logout()
+               TwitterAPICaller.client?.logout()
 
-        self.dismiss(animated: true, completion: nil)
-        UserDefaults.standard.set(false,forKey: "userLoggedIn")
+               self.dismiss(animated: true, completion: nil)
+               UserDefaults.standard.set(false,forKey: "userLoggedIn")
     }
+
+
     // MARK: - Table view data source
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -59,6 +65,10 @@ class HomeTableViewController: UITableViewController {
         if let imageData = data{
             cell.profileImageView.image = UIImage(data: imageData)
         }
+        cell.setFavorite(isFavorited: tweetArray[indexPath.row]["favorited"] as! Bool)
+        cell.tweetId = tweetArray[indexPath.row]["id"] as! Int
+        cell.setRetweeted(isRetweeted:tweetArray[indexPath.row]["retweeted"] as! Bool)
+        
         return cell
     }
     
